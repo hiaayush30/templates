@@ -2,72 +2,59 @@
 - it's a querying and state mgmt library(asynchronous),it provides hooks that =>
 ![alt text](image.png)
 
-# React + TypeScript + Vite
+---
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### **`useQuery`**
 
-Currently, two official plugins are available:
+* Used when you want to **fetch one resource** (or one logical set of data) at a time.
+* You give it:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+  * A **`queryKey`** (unique ID for caching).
+  * A **`queryFn`** (function to fetch the data).
+* Returns the state (`data`, `isLoading`, `error`, etc.) for that single query.
 
 ```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+const { data, isLoading, error } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+});
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
+
+### **`useQueries`**
+
+* Used when you need to **run multiple independent queries at once**.
+* Takes an **array** of query configs — each works like a `useQuery`.
+* Returns an **array of results** in the same order as the configs.
+* Useful when you want multiple data sets to load in parallel.
 
 ```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
+const results = useQueries({
+  queries: [
+    {
+      queryKey: ['user', userId],
+      queryFn: () => fetchUser(userId),
     },
-  },
-])
+    {
+      queryKey: ['posts', userId],
+      queryFn: () => fetchPosts(userId),
+    }
+  ],
+});
+
+const user = results[0].data;
+const posts = results[1].data;
 ```
+
+---
+
+**Main difference in usage:**
+
+* **If you only need one query → `useQuery`**.
+* **If you need multiple unrelated queries → `useQueries`**.
+  They run in parallel and each has its own state.
+
+---
+
+If you want, I can give you a **side-by-side table** comparing `useQuery` and `useQueries` so you can remember it instantly.

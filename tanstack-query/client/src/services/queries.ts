@@ -17,7 +17,7 @@ export const useTodos = (ids:(number | undefined)[] | undefined ) => {
         queries: (ids ?? []).map((id)=>{
             return {
                 queryKey:["todo",id],
-                queryFn: async (   ) => await getTodo(id!)
+                queryFn: async () => await getTodo(id!)
             }
         })
     })
