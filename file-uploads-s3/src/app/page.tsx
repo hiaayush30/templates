@@ -2,7 +2,7 @@
 import { FilePlusIcon } from "@radix-ui/react-icons"
 import Image from "next/image"
 import { ChangeEvent, FormEvent, useRef, useState } from "react"
-import { getSignedURLAction } from "@/actions/actions"
+import { createPost, getSignedURLAction } from "@/actions/create.actions"
 import axios from "axios"
 
 function Dashboard() {
@@ -31,11 +31,11 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("")
 
-  const computeSHA256 = async (file:File) => {
+  const computeSHA256 = async (file: File) => {
     const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest("SHA-256",buffer);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer))
-    const hashHex = hashArray.map(b=>b.toString(16).padStart(2,"0")).join("");
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
     return hashHex;
   }
 
@@ -47,13 +47,14 @@ function Dashboard() {
     try {
       if (file) {
         const checksum = await computeSHA256(file);
-        const signedUrlResult = await getSignedURLAction(file.name,file.type,file.size,checksum)
+        const signedUrlResult = await getSignedURLAction(file.type, file.size, checksum)
         if (signedUrlResult.failure) {
           setStatusMessage("failed")
           setLoading(false)
         }
-        const url = signedUrlResult?.success?.url
-        if(!url) throw new Error(signedUrlResult.failure)
+
+        if (!signedUrlResult.success) throw new Error(signedUrlResult.failure)
+        const { url, mediaId } = signedUrlResult?.success
 
         await axios.put(url, file, {
           headers: {
@@ -61,6 +62,13 @@ function Dashboard() {
           }
         })
         alert("file uploaded to S3")
+
+        // assuming you are creating insta posts
+        await createPost({content,mediaId});
+
+        // send user back to updated feed
+        // revalidatePath("/")
+        // redirect("/")
       }
     } catch (error) {
       console.log(error)
@@ -71,6 +79,8 @@ function Dashboard() {
       setLoading(false)
     }
   }
+
+
 
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
