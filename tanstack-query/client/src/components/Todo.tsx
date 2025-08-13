@@ -14,13 +14,13 @@ function Todo() {
 
     return (
         <>
-        <div> Query fn status </div>
-        todosIdQuery.data?.map(id => (
-            <div key={id}>
-                {id}
-            </div>
-        ))
-        </div>
+            <div> Query fn status </div>
+            {todosIdQuery.data?.map(id => (
+                <div key={id}>
+                    {id}
+                </div>
+            ))}
+        </>
     )
 }
 
