@@ -31,25 +31,44 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("")
 
+  const computeSHA256 = async (file:File) => {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest("SHA-256",buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray.map(b=>b.toString(16).padStart(2,"0")).join("");
+    return hashHex;
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setStatusMessage("uploading")
     setLoading(true)
     console.log(content, file)
-    if (file) {
-      const signedUrlResult = await getSignedURLAction(file.name)
-      //@ts-expect-error failure is commented out in the action for now as we don't have next-auth here
-      if (signedUrlResult.failure) {
-        setStatusMessage("failed")
-        setLoading(false)
-      }
-      const url = signedUrlResult.success.url
-      await axios.put(url, file, {
-        headers: {
-          "Content-Type": file.type
+    try {
+      if (file) {
+        const checksum = await computeSHA256(file);
+        const signedUrlResult = await getSignedURLAction(file.name,file.type,file.size,checksum)
+        if (signedUrlResult.failure) {
+          setStatusMessage("failed")
+          setLoading(false)
         }
-      })
-      alert("file uploaded to S3")
+        const url = signedUrlResult?.success?.url
+        if(!url) throw new Error(signedUrlResult.failure)
+
+        await axios.put(url, file, {
+          headers: {
+            "Content-Type": file.type
+          }
+        })
+        alert("file uploaded to S3")
+      }
+    } catch (error) {
+      console.log(error)
+      setStatusMessage("failed")
+      alert("Upload failed")
+    }
+    finally {
+      setLoading(false)
     }
   }
 
@@ -74,7 +93,7 @@ function Dashboard() {
             onClick={() => fileInputRef.current?.click()}
             className="size-6 hover:scale-110 transition-all duration-200 cursor-pointer"
           />
-          <button className="p-1 bg-red-600 text-white rounded-md hover:bg-red-500 hover:scale-105 cursor-pointer" type="submit">Submit</button>
+          <button disabled={loading} className="p-1 bg-red-600 text-white rounded-md hover:bg-red-500 hover:scale-105 cursor-pointer" type="submit">Submit</button>
         </form>
         {localFileURL && file && (
           <div>
