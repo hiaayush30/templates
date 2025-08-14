@@ -8,7 +8,7 @@ export const useTodosIds = () => {
         queryKey: ['todos'], // this key will be used to revalidate this query
         queryFn: getTodoIds,
         refetchOnWindowFocus: false,
-        // enabled:false   // disable or enable this query
+        // enabled:false   // disable or en able this query
     })
 }
 
