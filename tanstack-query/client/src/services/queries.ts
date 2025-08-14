@@ -12,11 +12,11 @@ export const useTodosIds = () => {
     })
 }
 
-export const useTodos = (ids:(number | undefined)[] | undefined ) => {
+export const useTodos = (ids: (number | undefined)[] | undefined) => {
     return useQueries({   //useQueries is used when we want to fetch multiple queries that we don't know how many
-        queries: (ids ?? []).map((id)=>{
+        queries: (ids ?? []).map((id) => {
             return {
-                queryKey:["todo",id],
+                queryKey: ["todo", id],
                 queryFn: async () => await getTodo(id!)
             }
         })

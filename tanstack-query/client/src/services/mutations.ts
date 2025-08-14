@@ -21,22 +21,22 @@ export function useCreateTodo() {
             if (error) {
                 console.log(error)
             } else {
-                await queryCLient.invalidateQueries({queryKey:["todos"]})
+                await queryCLient.invalidateQueries({ queryKey: ["todos"] })
             }
         }
     })
 }
 
-export function useUpdateTodo(){
+export function useUpdateTodo() {
     const queryCLient = useQueryClient();
 
     return useMutation({
-        mutationFn:(data:Todo) => updateTodo(data),
-                onSettled: async (data, error, variables) => {  
+        mutationFn: (data: Todo) => updateTodo(data),
+        onSettled: async (_, error, variables) => {
             if (error) {
                 console.log(error)
             } else {
-                await queryCLient.invalidateQueries({queryKey:["todos",variables.id]})
+                await queryCLient.invalidateQueries({ queryKey: ["todo",variables.id] })
             }
         }
     })
