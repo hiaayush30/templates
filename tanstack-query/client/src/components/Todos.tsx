@@ -1,5 +1,6 @@
 import { useIsFetching } from '@tanstack/react-query';
 import { useTodos, useTodosIds } from '../services/queries'
+import { useDeleteTodo } from '../services/mutations';
 
 function Todos() {
     const todosIdQuery = useTodosIds();
@@ -16,6 +17,11 @@ function Todos() {
 
     const todoQueries = useTodos(todosIdQuery.data)
 
+    const deleteTodoMutation = useDeleteTodo();
+    const handleDelete = async (id: number) => {
+        await deleteTodoMutation.mutateAsync(id)
+        alert("Todo deleted!")
+    }
     return (
         <>
             <div> Query fn status: {todosIdQuery.fetchStatus} </div>
@@ -28,7 +34,7 @@ function Todos() {
                     </div>
                 ))
             }
-            
+
             {
                 todoQueries.map(({ data }) => (   // we are mapping an array of queries from each of which, we take the data i.e todo
                     <div key={data?.id}>
@@ -36,6 +42,9 @@ function Todos() {
                             <li>{data?.title}</li>
                             <li>{data?.description}</li>
                         </ul>
+                        <button disabled={deleteTodoMutation.isPending} onClick={() => handleDelete(data?.id ?? 0)}>
+                            {deleteTodoMutation.isPending ? "Deleting" : "Delete"}
+                        </button>
                     </div>
                 ))
             }

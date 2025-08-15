@@ -1,7 +1,7 @@
 // the middleware betn api..ts and the client for caching, revalidating, loadig states, errors etc
 
-import { useQueries, useQuery } from "@tanstack/react-query"
-import { getTodo, getTodoIds } from "./api"
+import { keepPreviousData, useQueries, useQuery } from "@tanstack/react-query"
+import { getProjects, getTodo, getTodoIds } from "./api"
 
 export const useTodosIds = () => {
     return useQuery({
@@ -20,5 +20,14 @@ export const useTodos = (ids: (number | undefined)[] | undefined) => {
                 queryFn: async () => await getTodo(id!)
             }
         })
+    })
+}
+
+export function useProjects(page: number) {
+    return useQuery({
+        queryKey: ["projects",page],
+        queryFn: async () => getProjects(page),
+        placeholderData: keepPreviousData,  // while the next page data loads it will show the previous page data
+        refetchOnWindowFocus: false
     })
 }

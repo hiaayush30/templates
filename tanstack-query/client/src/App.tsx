@@ -6,6 +6,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { useCreateTodo, useUpdateTodo } from "./services/mutations"
 import type { Todo } from "./types/todo";
 import Todos from "./components/Todos";
+import PaginationProject from "./components/PaginationProject";
 
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
   const updateForm = useForm<Todo>()
   return (
     <div>
-      <form onSubmit={handleSubmit(handleCreateTodoSubmit)}>
+      {/* <form onSubmit={handleSubmit(handleCreateTodoSubmit)}>
         <h2>New Todo:</h2>
         <input placeholder="Title" {...register("title")} />
         <br />
@@ -50,7 +51,8 @@ function App() {
         <input type="submit" disabled={updateTodoMutation.isPending} value={updateTodoMutation.isPending ? "Updating" : "Update"} />
       </form>
       <hr />
-      <Todos />
+      <Todos /> */}
+      <PaginationProject/>
     </div>
   )
 }
