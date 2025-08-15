@@ -7,6 +7,7 @@ import { useCreateTodo, useUpdateTodo } from "./services/mutations"
 import type { Todo } from "./types/todo";
 import Todos from "./components/Todos";
 import PaginationProject from "./components/PaginationProject";
+import Products from "./components/Products";
 
 
 function App() {
@@ -52,7 +53,8 @@ function App() {
       </form>
       <hr />
       <Todos /> */}
-      <PaginationProject/>
+      {/* <PaginationProject/> */}
+      <Products/>
     </div>
   )
 }

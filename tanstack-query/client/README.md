@@ -1,3 +1,5 @@
+![alt text](image-1.png)
+
 ## React Query / Tanstack Query
 - it's a querying and state mgmt library(asynchronous),it provides hooks that =>
 ![alt text](image.png)
