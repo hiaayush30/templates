@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export interface Habit {
     id: string;
@@ -17,7 +17,7 @@ interface HabitState {
 }
 
 // create<State>() returns another function waiting for your store creator.
-// That’s why you call it again with (persist(...)).
+// That’s why you call it again with (persist(...)). (iife)
 
 // 🛠 Why not just create<HabitState>(persist(...))?
 // That syntax works without persist, but with middlewares (persist, devtools, etc.), TypeScript needs the curried form to infer the types correctly.
