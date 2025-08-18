@@ -14,6 +14,9 @@ interface HabitState {
     addHabit: (name: string, frequency: "daily" | "weekly") => void;
     removeHabit: (id: string) => void;
     toggleHabit: (id: string, date: string) => void;
+    fetchHabits: () => Promise<void>;
+    isLoading: boolean;
+    error: string | null;
 }
 
 // create<State>() returns another function waiting for your store creator.
@@ -24,8 +27,10 @@ interface HabitState {
 
 const useHabitStore = create<HabitState>()(
     persist<HabitState>(
-        (set) => ({
+        (set,get) => ({
             habits: [],
+            isLoading: false,
+            error: null,
             addHabit: (name, frequency) =>
                 set((state) => ({
                     habits: [
@@ -48,14 +53,40 @@ const useHabitStore = create<HabitState>()(
                     habits: state.habits.map((habit) =>
                         habit.id === id
                             ? {
-                                  ...habit,
-                                  completedDates: habit.completedDates.includes(date)
-                                      ? habit.completedDates.filter((d) => d !== date)
-                                      : [...habit.completedDates, date],
-                              }
+                                ...habit,
+                                completedDates: habit.completedDates.includes(date)
+                                    ? habit.completedDates.filter((d) => d !== date)
+                                    : [...habit.completedDates, date],
+                            }
                             : habit
                     ),
                 })),
+            fetchHabits: async () => {
+                set(state => ({ isLoading: true }))  // set({isLoading:true})
+                try {
+                    const currHabits = get().habits   //gets our current state
+                    if (currHabits.length > 0) {
+                        set({isLoading:false})
+                        return;
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, 3000))
+                    set((state) => {
+                        return {
+                            habits: [...state.habits, {
+                                id: Date.now().toString(),
+                                completedDates: [],
+                                name: "Lessgo",
+                                createdAt: new Date().toISOString(),
+                                frequency: "weekly"
+                            }]
+                        }
+                    })
+                } catch (error) {
+                    set({ error: JSON.stringify(error) })
+                } finally {
+                    set({ isLoading: false })
+                }
+            }
         }),
         {
             name: "habits-local", // key in localStorage
